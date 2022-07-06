@@ -14,8 +14,16 @@ async function main() {
   await aaveGw.deployed();
 
   await gw.newGateway("Aave", aaveGw.address);
-
   console.log(await gw.getGatewayAddress("Aave"));
+
+  //Deploy Compound 
+  const CompoundGW = await ethers.getContractFactory("CompoundGW");
+  const compoundGW = await CompoundGW.deploy();
+  await compoundGW.deployed();
+
+  await gw.newGateway("Compound", compoundGW.address);
+  console.log(await gw.getGatewayAddress("Compound"));
+
 
   const [owner, user] = await ethers.getSigners();
 
