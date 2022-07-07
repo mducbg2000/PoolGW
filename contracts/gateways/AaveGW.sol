@@ -23,20 +23,20 @@ contract AaveGW is IPoolGW {
 
     function deposit(
         address account,
-        address token,
+        address asset,
         uint256 amount
     ) external override {
-        uint256 allowance = IERC20(token).allowance(account, address(this));
+        uint256 allowance = IERC20(asset).allowance(account, address(this));
         require(
             amount <= allowance,
             "Amount must be equals or less than allowance"
         );
 
-        IERC20(token).transferFrom(account, address(this), amount);
+        IERC20(asset).transferFrom(account, address(this), amount);
 
-        IERC20(token).approve(poolAddress, amount);
+        IERC20(asset).approve(poolAddress, amount);
 
-        lendingPool.deposit(token, amount, account, 0);
+        lendingPool.deposit(asset, amount, account, 0);
     }
 
     function withdraw(
@@ -86,12 +86,15 @@ contract AaveGW is IPoolGW {
 
         IERC20(asset).safeTransferFrom(account, address(this), amount);
 
+        IERC20(asset).approve(poolAddress, amount);
+
         lendingPool.repay(asset, amount, 1, account);
     }
 
     function getReverse(address asset)
         external
         view
+        override
         returns (address aTokenAddress, address debtTokenAddress)
     {
         (address aToken, address debtToken, ) = dataProvider

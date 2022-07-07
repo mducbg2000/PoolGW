@@ -19,10 +19,10 @@ async function main() {
 
   const [owner, user] = await ethers.getSigners();
 
-  // mint 100 weth token for user
+  // mint 1000 weth token for user
   const weth = new ethers.Contract(address.WETH, weth9, ethers.provider);
   await weth.connect(user).deposit({
-    value: ethers.utils.parseEther("0.0000000000000001"),
+    value: ethers.utils.parseEther("0.000000000000001"),
   });
 }
 

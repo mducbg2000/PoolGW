@@ -40,6 +40,14 @@ contract PoolGW is Ownable {
         IPoolGW(pools[name]).repay(msg.sender, asset, amount);
     }
 
+    function getReverse(string memory name, address asset)
+        external
+        view
+        returns (address rTokenAddress, address debtTokenAddress)
+    {
+        return IPoolGW(pools[name]).getReverse(asset);
+    }
+
     function newGateway(string memory name, address poolAddress)
         external
         onlyOwner

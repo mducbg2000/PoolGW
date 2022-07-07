@@ -25,4 +25,6 @@ interface IPoolGW {
         address asset,
         uint256 amount
     ) external;
+
+    function getReverse(address asset) external view returns (address, address);
 }
