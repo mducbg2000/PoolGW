@@ -9,9 +9,19 @@ interface CERC20 {
 
     function redeem(uint) external returns (uint);
 
+    function redeemUnderlying(uint) external returns (uint);
+
     function borrow(uint256) external returns (uint256);
 
     function repayBorrow(uint256) external returns (uint256);
+}
+
+interface CToken {
+    function transfer(address dst, uint amount) external returns (bool);
+
+    function transferFrom(address src, address dst, uint amount) external returns (bool);
+
+    function approve(address spender, uint amount) external returns (bool);
 }
 
 contract CompoundGW is IPoolGW {
@@ -50,7 +60,9 @@ contract CompoundGW is IPoolGW {
 
         IERC20(asset).approve(cToken[asset], amount);
         
-        CERC20(cToken[asset]).mint(amount);        
+        CERC20(cToken[asset]).mint(amount);
+
+        CToken(cToken[asset]).transfer(account, amount);
     }
 
     function withdraw(
@@ -71,7 +83,9 @@ contract CompoundGW is IPoolGW {
 
         IERC20(cToken[asset]).transferFrom(account, address(this), amount);
 
-        CERC20(cToken[asset]).redeem(amount);
+        CERC20(cToken[asset]).redeemUnderlying(amount);
+
+        IERC20(asset).transfer(account, amount);
     }
 
     function borrow(
