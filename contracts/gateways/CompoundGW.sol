@@ -11,11 +11,21 @@ interface CERC20 {
 
     function redeemUnderlying(uint256) external returns (uint256);
 
+    function redeemUnderlying(uint) external returns (uint);
+
     function borrow(uint256) external returns (uint256);
 
     function repayBorrowBehalf(address, uint256) external returns (uint256);
 
     function borrowBalanceCurrent(address) external returns (uint256);
+}
+
+interface CToken {
+    function transfer(address dst, uint amount) external returns (bool);
+
+    function transferFrom(address src, address dst, uint amount) external returns (bool);
+
+    function approve(address spender, uint amount) external returns (bool);
 }
 
 contract CompoundGW is IPoolGW {
