@@ -3,35 +3,59 @@ pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../interfaces/IPoolGW.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 interface CERC20 {
     function mint(uint256) external returns (uint256);
 
-    function redeemUnderlying(uint256) external returns (uint256);
+    function redeem(uint256) external returns (uint256);
 
-    function redeemUnderlying(uint) external returns (uint);
+    function redeemUnderlying(uint256) external returns (uint256);
 
     function borrow(uint256) external returns (uint256);
 
     function repayBorrowBehalf(address, uint256) external returns (uint256);
 
     function borrowBalanceCurrent(address) external returns (uint256);
+
+    function balanceOfUnderlying(address account) external returns (uint256);
+
+    function balanceOf(address) external returns (uint256);
 }
 
-interface CToken {
-    function transfer(address dst, uint amount) external returns (bool);
+interface Comptroller {
+    function markets(address) external returns (bool, uint256);
 
-    function transferFrom(address src, address dst, uint amount) external returns (bool);
+    function enterMarkets(address[] calldata)
+        external
+        returns (uint256[] memory);
 
-    function approve(address spender, uint amount) external returns (bool);
+    function getAccountLiquidity(address)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        );
+}
+
+interface ComptrollerInterface {
+    function enterMarkets(address[] calldata cTokens)
+        external
+        returns (uint256[] memory);
+
+    function exitMarket(address cToken) external returns (uint256);
 }
 
 contract CompoundGW is IPoolGW {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     mapping(address => address) cToken; // Token -> cToken
+    Comptroller comptroller =
+        Comptroller(address(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B));
 
     constructor() public {
         cToken[
@@ -89,13 +113,26 @@ contract CompoundGW is IPoolGW {
 
         IERC20(asset).safeTransferFrom(account, address(this), amount);
 
+        address cAddress = cToken[asset];
+
+        address[] memory enters = new address[](1);
+        enters[0] = cAddress;
+        comptroller.enterMarkets(enters);
         IERC20(asset).safeApprove(cToken[asset], amount);
 
-        CERC20(cToken[asset]).mint(amount);
+        uint256 balance = IERC20(asset).balanceOf(address(this));
 
-        uint256 balance = IERC20(cToken[asset]).balanceOf(address(this));
+        console.log("Balance: %s", balance);
 
-        IERC20(cToken[asset]).safeTransfer(account, balance);
+        uint256 result = CERC20(cToken[asset]).mint(amount);
+
+        console.log("Result: %s", result);
+
+        uint256 cBalance = CERC20(cToken[asset]).balanceOf(address(this));
+
+        console.log("cBalance: %s", cBalance);
+
+        IERC20(cToken[asset]).safeTransfer(account, cBalance);
     }
 
     function withdraw(
@@ -122,7 +159,7 @@ contract CompoundGW is IPoolGW {
             "Cannot transfer cToken from user to this contract!"
         );
 
-        CERC20(cTokenAddress).redeemUnderlying(amount);
+        CERC20(cTokenAddress).redeem(amount);
 
         IERC20(asset).safeTransfer(account, amount);
     }
