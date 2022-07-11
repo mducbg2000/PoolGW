@@ -48,7 +48,7 @@ contract PoolGW is Ownable {
         return IPoolGW(pools[name]).getReverse(asset);
     }
 
-    function newGateway(string memory name, address poolAddress)
+    function registerGateway(string memory name, address poolAddress)
         external
         onlyOwner
     {
