@@ -1,0 +1,29 @@
+@startuml alchemy
+cloud Alchemy <<Mainnet>> {
+  database FullNode <<Block1234>>
+}
+
+node LocalMachine {
+  database LocalNode {
+    node Block1234
+    node Block1235
+    node Block1236
+    node "..." as continue
+    Block1234 -down-> Block1235
+    Block1235 -down-> Block1236
+    Block1236 --> continue
+  }
+  
+  package Contract {
+    [AaveGW]
+    [PoolGW]
+  }
+
+  frame ClientApplication
+
+  PoolGW -right-> Block1235: Deploy
+  AaveGW --> Block1236: Deploy
+  ClientApplication -left-> continue: Call Contract
+}
+
+FullNode -left--> Block1234 : Fetch Data

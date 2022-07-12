@@ -1,0 +1,43 @@
+@startuml sequence 
+
+actor User 
+control Gateway 
+entity Token 
+' entity aToken
+entity debtToken
+database Aave
+
+' deposit
+' User -> Token: approve(Gateway, amount)
+' User -> Gateway: deposit(Token, amount)
+' Gateway -> Token: transferFrom(User, Gateway, amount)
+' Gateway -> Token: approve(Gateway, amount)
+' Gateway -> Aave: deposit(Token, amount, User)
+' Aave -> Token: transferFrom(Gateway, Aave, amount)
+' Aave -> aToken: mint(User, amount)
+
+' withdraw
+' User -> Token: approve(Gateway, amount)
+' User -> Gateway: withdraw(Token, amount)
+' Gateway -> aToken: transferFrom(User, Gateway, amount)
+' Gateway -> Aave: deposit(Token, amount, User)
+' Aave -> aToken: burn(User, amount)
+
+' borrow
+' User -> debtToken: approveDelegation(Gateway, amount)
+' User -> Gateway: borrow(Token, amount)
+' Gateway -> Aave: borrow(Token, amount, User)
+' Aave -> debtToken: mint(Gateway, amount)
+' Aave -> Token: transfer(Gateway, amount)
+' Gateway -> Token: transfer(User, amount)
+
+' repay
+User -> Token: approve(Gateway, amount)
+User -> Gateway: repay(Token, amount)
+|||
+Gateway -> Token: transferFrom(User, Gateway, amount)
+Gateway -> Aave: approve(Token, amount)
+Gateway -> Aave: repay(Token, amount, User)
+|||
+Aave -> Token: transferFrom(Gateway, Aave, amount)
+Aave -> debtToken: burn(User, amount)

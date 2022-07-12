@@ -1,0 +1,35 @@
+@startuml Deploy
+skinparam componentStyle rectangle
+frame "Client Application" {
+  [Deposit] as fD
+  [Withdraw] as fW
+  [Borrow] as fB
+  [Repay] as fR
+}
+
+frame "Gateway" {
+
+  database "PoolGW" {
+    [Deposit] as pD
+    [Withdraw] as pW
+    [Borrow] as pB
+    [Repay] as pR
+  }
+  node "AaveGW"
+  node "CompoundGW" 
+}
+
+cloud "Aave"
+
+cloud "Compound"
+
+
+fD -down--> pD
+fW --> pW
+fB --> pB
+fR --> pR
+
+PoolGW -down--> AaveGW
+PoolGW ---> CompoundGW
+AaveGW -down--> Aave
+CompoundGW -down--> Compound

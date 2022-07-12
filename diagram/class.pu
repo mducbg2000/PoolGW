@@ -1,0 +1,30 @@
+@startuml interface
+
+
+class PoolGW {
+  - string[] names
+  - map<string, address> pools
+  + void deposit(address account, address asset, uint256 amout)
+  + void withdraw(address account, address asset, uint256 amout)
+  + void borrow(address account, address asset, uint256 amout)
+  + void repay(address account, address asset, uint256 amout)
+  + string[] allGateway()
+  # void registerGateway()
+}
+
+
+interface IPoolGW {
+  {abstract} void deposit(address account, address asset, uint256 amout) 
+  {abstract} void withdraw(address account, address asset, uint256 amout)
+  {abstract} void borrow(address account, address asset, uint256 amout)
+  {abstract} void repay(address account, address asset, uint256 amout)
+}
+
+PoolGW --> IPoolGW
+
+class AaveGW
+class CompoundGW
+
+IPoolGW <|--AaveGW
+IPoolGW <|--CompoundGW
+
